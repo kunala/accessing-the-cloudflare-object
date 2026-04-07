@@ -1,4 +1,8 @@
 import { serializeCfMerged } from "./serializeCf";
+import {
+	summarizeJa3Ja4,
+	summarizeTlsClientHelloObservables,
+} from "./summarizeTls";
 
 /**
  * Echo everything Cloudflare exposes on request.cf (IncomingRequestCfProperties),
@@ -47,10 +51,11 @@ export default {
 			return jsonResponse(cfRecord);
 		}
 
-		// Enterprise Bot Management / JA fields may appear under cf when available
 		const payload: Record<string, unknown> = {
 			cf: cfRecord,
 			cfTopLevelKeys: Object.keys(cfRecord).sort(),
+			ja3Ja4: summarizeJa3Ja4(req.cf),
+			tlsClientHelloObservables: summarizeTlsClientHelloObservables(cfRecord),
 			request: {
 				url: req.url,
 				method: req.method,
@@ -65,6 +70,8 @@ export default {
 					"https://developers.cloudflare.com/workers/runtime-apis/request/#incomingrequestcfproperties",
 				ja3Ja4Docs:
 					"https://developers.cloudflare.com/bots/additional-configurations/ja3-ja4-fingerprint/",
+				botManagementVariables:
+					"https://developers.cloudflare.com/bots/reference/bot-management-variables/",
 				queryParams: {
 					raw: "Add ?raw=1 to return only the cf object (merged), similar to the original worker body.",
 					allHeaders:

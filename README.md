@@ -7,6 +7,8 @@ Vendored from [kunala/accessing-the-cloudflare-object](https://github.com/kunala
 - **Default** (`GET /`): JSON with:
   - `cf` — merged, deep-serialized `IncomingRequestCfProperties` (BigInt-safe, nested objects preserved).
   - `cfTopLevelKeys` — sorted list of keys for quick diffing.
+  - `ja3Ja4` — explicit readout of **`request.cf.botManagement`** (`ja3Hash`, `ja4`, `score`, `ja4Signals`, …) when [Bot Management](https://developers.cloudflare.com/bots/reference/bot-management-variables/) is enabled on the zone; otherwise a clear `cloudflareJa3Ja4Populated: false` message (typical on `workers.dev` without Enterprise BM).
+  - `tlsClientHelloObservables` — groups **`tlsClientHelloLength`**, cipher/extension **SHA1 fields**, **`tlsExportedAuthenticator`**, negotiated **`tlsVersion`/`tlsCipher`**, and documents what Cloudflare **does not** expose (no raw ClientHello, no ordered cipher list on `cf`).
   - `request` — URL, method, and **filtered** headers (`cf-*`, `User-Agent`, common `X-Forwarded-*`, `Host`, …).
   - `meta` — pointers to Cloudflare docs.
 
@@ -28,7 +30,7 @@ npm run deploy
 2. Same machine, **Dope off**, save JSON.  
 3. Diff `cf` (or the whole default payload): `tlsClientHelloLength`, `tlsClientCiphersSha1`, `tlsClientExtensionsSha1`, `tlsExportedAuthenticator`, etc.
 
-**Note:** [JA3/JA4 Signals](https://developers.cloudflare.com/bots/additional-configurations/ja3-ja4-fingerprint/) (`ja4Signals`, …) require **Enterprise Bot Management** and may only appear in `cf` when your zone has those features enabled—this Worker only echoes what the runtime attaches to `request.cf`.
+**Note:** [JA3/JA4 on `cf`](https://developers.cloudflare.com/bots/additional-configurations/ja3-ja4-fingerprint/) (`ja3Hash`, `ja4`, `ja4Signals`, …) require **Enterprise Bot Management** on **your** zone. This Worker cannot invent them. For **`ja3_text` / `ja4_r` / cipher lists** as a non-CF TLS endpoint sees them, use something like [tls.browserleaks.com/json](https://tls.browserleaks.com/json) in the browser (Dope on vs off).
 
 ## References
 
